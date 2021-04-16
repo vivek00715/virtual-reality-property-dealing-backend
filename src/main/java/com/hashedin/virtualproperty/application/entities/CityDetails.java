@@ -13,6 +13,21 @@ public class CityDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int cityId;
 
-    private String cityName,description;
+    @Column(nullable = false)
+    private String cityName;
+
+    @Column(nullable = false)
+    private String description;
+
+    public CityDetails()
+    {
+
+    }
+
+    public CityDetails(int cityId, String cityName, String description) {
+        this.cityId = cityId;
+        this.cityName = cityName;
+        this.description = description;
+    }
 
 }

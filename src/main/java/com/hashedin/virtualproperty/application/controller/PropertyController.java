@@ -2,8 +2,10 @@ package com.hashedin.virtualproperty.application.controller;
 
 import com.hashedin.virtualproperty.application.entities.CityDetails;
 import com.hashedin.virtualproperty.application.entities.Property;
+import com.hashedin.virtualproperty.application.exceptions.CustomException;
 import com.hashedin.virtualproperty.application.service.CityService;
 import com.hashedin.virtualproperty.application.service.PropertyService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +15,8 @@ import java.util.List;
 @RestController
 public class PropertyController
 {
+    @Autowired
     private PropertyService propertyService;
-
-    PropertyController(PropertyService propertyService)
-    {
-        this.propertyService=propertyService;
-    }
 
     @PostMapping(value="property/create")
     public ResponseEntity addingNewProperty(@RequestBody Property property)
@@ -28,7 +26,7 @@ public class PropertyController
             String returnedvalue=propertyService.createProperty(property);
             return new ResponseEntity(returnedvalue, HttpStatus.OK);
         }
-        catch(Exception e)
+        catch(CustomException e)
         {
             return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
@@ -41,7 +39,7 @@ public class PropertyController
             List<Property> returnedvalue=propertyService.getProperty();
             return new ResponseEntity(returnedvalue, HttpStatus.OK);
         }
-        catch(Exception e)
+        catch(CustomException e)
         {
             return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
@@ -54,7 +52,7 @@ public class PropertyController
             List<Property> returnedvalue=propertyService.getPropertyByCityName(city);
             return new ResponseEntity(returnedvalue, HttpStatus.OK);
         }
-        catch(Exception e)
+        catch(CustomException e)
         {
             return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
@@ -67,7 +65,7 @@ public class PropertyController
             List<Property> returnedvalue=propertyService.getPropertyByCityAndType(city,type);
             return new ResponseEntity(returnedvalue, HttpStatus.OK);
         }
-        catch(Exception e)
+        catch(CustomException e)
         {
             return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
@@ -80,7 +78,7 @@ public class PropertyController
             List<Property> returnedvalue=propertyService.getPropertyByStateAndType(state,type);
             return new ResponseEntity(returnedvalue, HttpStatus.OK);
         }
-        catch(Exception e)
+        catch(CustomException e)
         {
             return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
@@ -93,7 +91,7 @@ public class PropertyController
             List<Property> returnedvalue=propertyService.getPropertyByAddress(address,city,state);
             return new ResponseEntity(returnedvalue, HttpStatus.OK);
         }
-        catch(Exception e)
+        catch(CustomException e)
         {
             return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
@@ -106,7 +104,7 @@ public class PropertyController
             List<Property> returnedvalue=propertyService.getPropertyByState(state);
             return new ResponseEntity(returnedvalue, HttpStatus.OK);
         }
-        catch(Exception e)
+        catch(CustomException e)
         {
             return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
@@ -119,7 +117,7 @@ public class PropertyController
             Property returnedvalue=propertyService.getPropertyById(propertyId);
             return new ResponseEntity(returnedvalue, HttpStatus.OK);
         }
-        catch(Exception e)
+        catch(CustomException e)
         {
             return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
@@ -132,7 +130,7 @@ public class PropertyController
             List<Property> returnedvalue=propertyService.getPropertyByMaxPrice(maxPrice);
             return new ResponseEntity(returnedvalue, HttpStatus.OK);
         }
-        catch(Exception e)
+        catch(CustomException e)
         {
             return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
         }

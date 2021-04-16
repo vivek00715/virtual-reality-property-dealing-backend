@@ -13,4 +13,7 @@ public class PropertyNearbyFacilities {
     @Id
     private String pincode;
     private String metro,station,airport,school,hospital;
+
+
+
 }
