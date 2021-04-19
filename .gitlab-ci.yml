@@ -25,6 +25,8 @@ docker-build:
   before_script:
     - apk add --update curl && rm -rf /var/cache/apk/*
     - curl --version
+    - ls -al
+    
   only:
     - master
   script:
