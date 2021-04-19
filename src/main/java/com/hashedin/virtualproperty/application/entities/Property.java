@@ -10,6 +10,7 @@ import javax.persistence.*;
 public class Property
 {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer propertyId;
 
     @Column(nullable = false)
