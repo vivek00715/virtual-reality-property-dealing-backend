@@ -13,7 +13,7 @@ jar-build:
     - mvn clean install -DskipTests=true
   artifacts:
     paths:
-    - target/application-0.0.1-SNAPSHOT.jar vr-app.jar
+    - target/*.jar
 variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
