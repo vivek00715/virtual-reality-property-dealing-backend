@@ -1,0 +1,22 @@
+version: '3.1'
+services:
+  app:
+    container_name: vr
+    image: vr
+    build: ./
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - spring.datasource.url=jdbc:postgresql://db:5432/hashhomes
+      - JWT_SECRET=${JWT_SECRET}
+      - ISSUER=${ISSUER}
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=hashhomes
