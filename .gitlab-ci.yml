@@ -1,0 +1,34 @@
+image:
+  name: docker/compose:latest
+stages:
+  - build
+  - docker
+
+jar-build:
+  image: maven:3-openjdk-11
+  stage: build
+  only:
+    - master
+  script:
+    - mvn clean install -DskipTests=true
+    - cd ..
+  artifacts:
+    paths:
+    - target/application-0.0.1-SNAPSHOT.jar vr-app.jar
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
+docker-build:
+  services:
+    - docker:dind
+  stage: docker
+  before_script:
+    - apk add --update curl && rm -rf /var/cache/apk/*
+    - curl --version
+  only:
+    - master
+  script:
+    - docker-compose version
+    - docker-compose build
+    - docker-compose up -d
