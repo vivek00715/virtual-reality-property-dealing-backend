@@ -47,7 +47,7 @@ public class AuthService {
             throw new CustomException("Invalid login credentials provided");
         }
         // user has entered correct details, generate token and send response
-        Algorithm algorithm = Algorithm.HMAC256(System.getenv("JWT_SECRET"));
+//        Algorithm algorithm = Algorithm.HMAC256(System.getenv("JWT_SECRET"));
         String token = this.generateJWTToken(user.getEmail());
         return new AuthResponse(user.getEmail(), user.getName(), user.getAddress(), user.getMobile(), token);
 
