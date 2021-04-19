@@ -2,6 +2,7 @@ package com.hashedin.virtualproperty.application.controller;
 
 import com.hashedin.virtualproperty.application.entities.CityDetails;
 import com.hashedin.virtualproperty.application.exceptions.CustomException;
+import com.hashedin.virtualproperty.application.response.CityResponse;
 import com.hashedin.virtualproperty.application.service.CityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,29 +18,15 @@ public class CityController
     }
 
     @PostMapping(value="city/create")
-    public ResponseEntity addingNewCity(@RequestBody CityDetails cityDetails)
+    public CityResponse addingNewCity(@RequestBody CityDetails cityDetails)
     {
-        try{
-            String returnedvalue=cityService.addCityDetails(cityDetails);
-            return new ResponseEntity(returnedvalue, HttpStatus.OK);
-        }
-        catch(CustomException e)
-        {
-            return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
-        }
+            return cityService.addCityDetails(cityDetails);
     }
 
     @GetMapping(value="city/{cityName}")
-    public ResponseEntity gettingCityDetails(@PathVariable String cityName)
-    {
-        try{
-            CityDetails cityDetails=cityService.getCityDetails(cityName);
-            return new ResponseEntity(cityDetails, HttpStatus.OK);
-        }
-        catch(CustomException e)
-        {
-            return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
-        }
+    public CityResponse gettingCityDetails(@PathVariable String cityName){
+
+            return cityService.getCityDetails(cityName);
     }
 
 }

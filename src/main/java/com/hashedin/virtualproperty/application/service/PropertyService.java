@@ -14,10 +14,10 @@ public class PropertyService {
     @Autowired
     private PropertyRepo propertyRepo;
 
-    public String createProperty(Property property)
+    public Property createProperty(Property property)
     {
         propertyRepo.save(property);
-        return "Saved Property...";
+        return new Property(property.getPropertyId(),property.getCity(), property.getState(), property.getAddress(),property.getType(),property.getPurpose(),property.getOwnerEmail(),property.getDescription(),property.getArea(),property.getBhk(),property.getBuiltYear(),property.getPrice(),property.getFloors(),property.getBedrooms(),property.getBathrooms(),property.getPinCode());
     }
 
     public List<Property> getProperty()  {
