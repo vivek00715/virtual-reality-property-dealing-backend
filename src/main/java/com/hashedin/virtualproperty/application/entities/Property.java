@@ -28,7 +28,7 @@ public class Property
     @Column(nullable = false)
     private String purpose;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String ownerEmail;
 
     @Column(nullable = false)
@@ -63,14 +63,12 @@ public class Property
 
     }
 
-    public Property(Integer propertyId, String city, String state, String address, String type, String purpose, String ownerEmail, String description, int area, int bhk, int builtYear, int price, int floors, int bedrooms, int bathrooms, int pinCode) {
-        this.propertyId = propertyId;
+    public Property(String city, String state, String address, String type, String purpose, String description, int area, int bhk, int builtYear, int price, int floors, int bedrooms, int bathrooms, int pinCode) {
         this.city = city;
         this.state = state;
         this.address = address;
         this.type = type;
         this.purpose = purpose;
-        this.ownerEmail = ownerEmail;
         this.description = description;
         this.area = area;
         this.bhk = bhk;
