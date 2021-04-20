@@ -47,7 +47,6 @@ public class AuthService {
             throw new CustomException("Invalid login credentials provided");
         }
         // user has entered correct details, generate token and send response
-//        Algorithm algorithm = Algorithm.HMAC256(System.getenv("JWT_SECRET"));
         String token = this.generateJWTToken(user.getEmail());
         return new AuthResponse(user.getEmail(), user.getName(), user.getAddress(), user.getMobile(), token);
 
@@ -96,7 +95,7 @@ public class AuthService {
             }
         }
         if (address == null || address.length() < 10) {
-            invalidData.add("Name should be atleast 10 characters");
+            invalidData.add("Address should be atleast 10 characters");
         }
 
         if (invalidData.size() > 0) {
@@ -126,9 +125,9 @@ public class AuthService {
     }
 
     private String generateJWTToken(String email) {
-        Algorithm algorithmHS = Algorithm.HMAC256(System.getenv("JWT_SECRET"));
+        Algorithm algorithmHS = Algorithm.HMAC256(this.getJwtSecret());
         return JWT.create()
-                .withIssuer(System.getenv("ISSUER"))
+                .withIssuer(this.getIssuer())
                 .withClaim("email", email)
                 .sign(algorithmHS);
     }
@@ -140,9 +139,9 @@ public class AuthService {
             throw new UnauthorizedException("Invalid Token");
         }
         try {
-            Algorithm algorithm = Algorithm.HMAC256(System.getenv("JWT_SECRET"));
+            Algorithm algorithm = Algorithm.HMAC256(this.getJwtSecret());
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer(System.getenv("ISSUER"))
+                    .withIssuer(this.getIssuer())
                     .build();
             DecodedJWT jwt = verifier.verify(token);
             return jwt.getClaim("email").asString();
@@ -150,5 +149,23 @@ public class AuthService {
             //Invalid signature/claims
             throw new UnauthorizedException("Invalid Token");
         }
+    }
+
+    private String getJwtSecret() {
+        // fallback to random string if jwt_secret is not set
+        String jwtSecret = System.getenv("JWT_SECRET");
+        if(jwtSecret == null || jwtSecret.length() == 0){
+            jwtSecret = "askdjasjdlaskjdlasjdlasjdklasjdaslkfdajhsfgajsgdhasd";
+        }
+        return jwtSecret;
+    }
+
+    private String getIssuer() {
+        // fallback issuer if Issuer is not set
+        String issuer = System.getenv("ISSUER");
+        if(issuer == null || issuer.length() == 0){
+            issuer = "VR_PROPERTY";
+        }
+        return issuer;
     }
 }
