@@ -14,14 +14,15 @@ public class PropertyController
     @Autowired
     private PropertyService propertyService;
 
-    @PostMapping(value="property")
+    @PostMapping(value="/property")
     public Property post(@RequestBody Property property,@RequestHeader (name="Authorization") String token)
     {
             System.out.println("hit post...");
+//        System.out.println(token);
             return propertyService.createProperty(property,token);
     }
 
-    @GetMapping(value="property")
+    @GetMapping(value="/property")
     public List<Property> get(
             @RequestParam(required=false,defaultValue = "0")int minPrice,
             @RequestParam(required=false,defaultValue = "2147483647")int maxPrice,
