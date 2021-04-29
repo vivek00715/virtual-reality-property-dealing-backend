@@ -14,7 +14,9 @@ public class PropertyController
     @Autowired
     private PropertyService propertyService;
 
-    @PostMapping(value="/property")
+    final String base="/property";
+
+    @PostMapping(value=base)
     public Property post(@RequestBody Property property,@RequestHeader (name="Authorization") String token)
     {
             System.out.println("hit post...");
@@ -22,7 +24,7 @@ public class PropertyController
             return propertyService.createProperty(property,token);
     }
 
-    @GetMapping(value="/property")
+    @GetMapping(value=base)
     public List<Property> get(
             @RequestParam(required=false,defaultValue = "0")int minPrice,
             @RequestParam(required=false,defaultValue = "2147483647")int maxPrice,
@@ -38,16 +40,28 @@ public class PropertyController
                                             type,purpose);
     }
 
-    @GetMapping(value="property/{propertyId}")
+    @GetMapping(value=base+"/{propertyId}")
     public Property getById(@PathVariable Integer propertyId)
     {
         return propertyService.getPropertyById(propertyId);
     }
 
-    @GetMapping(value="owner/{ownerEmail}/property")
+    @GetMapping(value="owner/{ownerEmail}"+base)
     public List<Property> getOwnerProperty(@PathVariable String ownerEmail)
     {
         return propertyService.getOwnerProperty(ownerEmail);
+    }
+
+    @PatchMapping(value="patch/{id}")
+    public Property patch(@RequestBody Property property,@PathVariable Integer id)
+    {
+        return propertyService.editProperty(property,id);
+    }
+
+    @DeleteMapping(value="delete")
+    public Property delete(@PathVariable Integer propertyId)
+    {
+        return  propertyService.deleteProperty(propertyId);
     }
 
 
