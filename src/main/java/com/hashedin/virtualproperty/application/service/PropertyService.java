@@ -49,6 +49,41 @@ public class PropertyService {
         return property;
     }
 
+    public Property deleteProperty(Integer propertyId)
+    {
+        if(propertyRepo.findById(propertyId).isPresent())
+        {
+            Property property1=propertyRepo.getPropertiesById(propertyId);
+            propertyRepo.deleteById(propertyId);
+            return property1;
+        }
+        else
+            throw new CustomException("This property is already not present");
+
+    }
+
+    public Property editProperty(Property property,Integer id)
+    {
+        Property property1=propertyRepo.getPropertiesById(id);
+
+        property1.setAddress(property.getAddress());
+        property1.setArea(property.getArea());
+        property1.setBathrooms(property.getBathrooms());
+        property1.setBedrooms(property.getBedrooms());
+        property1.setBhk(property.getBhk());
+        property1.setBuiltYear(property.getBuiltYear());
+        property1.setCity(property.getCity());
+        property1.setFloors(property.getFloors());
+        property1.setState(property1.getState());
+        property1.setDescription(property.getDescription());
+        property1.setPurpose(property.getPurpose());
+        property1.setType(property.getType());
+        property1.setPrice(property.getPrice());
+        property1.setPinCode(property.getPinCode());
+        propertyRepo.save(property1);
+        return property1;
+    }
+
 //    public List<Property> getPropertyByCityName(String city) {
 //
 //        List<Property> propertyList=propertyRepo.getPropertiesByCity(city);

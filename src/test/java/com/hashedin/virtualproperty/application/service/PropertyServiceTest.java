@@ -23,6 +23,18 @@ class PropertyServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
+
+//    @Mock
+//    private PropertyRepo propertyRepo;
+//    @InjectMocks
+//    private PropertyService propertyService;
+//
+//    @BeforeEach
+//    void setUp(){
+//        MockitoAnnotations.initMocks(this);
+//    }
+//
+
 //    @Test
 //    void testProperty(){
 //        Property p1 = new Property(1,"lucknow","UP","gomti nagar","flat","Sell","xyz@gmail.com","its a awesome house",1500,2,2015, 3000000, 1, 2, 2, 226010);
