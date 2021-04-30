@@ -51,7 +51,7 @@ deploy_backend:
 
   script:
     - gcloud auth activate-service-account --key-file ${CI_PIPELINE_ID}.json
-    - gcloud app deploy --project=groupnexus-poc-285411 --version v2
+    - gcloud app deploy --project=hu18-groupa-angular --version v1
     - gcloud app browse
     - url=$(gcloud app services browse $ServiceName --no-launch-browser --project groupnexus-poc-285411)
     - echo $url
