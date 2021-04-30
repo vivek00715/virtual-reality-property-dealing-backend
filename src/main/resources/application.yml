@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url : "jdbc:postgresql://localhost:5432/hashhomes"
-    username: "postgres"
-    password: "123"
+    url : "jdbc:postgresql://34.93.210.170/virtual-reality"
+    username: "vrpd"
+    password: "postgress"
     driverClassName: "org.postgresql.Driver"
   jpa:
     hibernate:
