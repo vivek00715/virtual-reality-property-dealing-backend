@@ -11,4 +11,4 @@ spring:
   cloud:
     gcp:
       logging:
-        enabled=true:
+        enabled: true
