@@ -58,10 +58,11 @@ public class PropertyController
         return propertyService.editProperty(property,id);
     }
 
-    @DeleteMapping(value="delete")
-    public Property delete(@PathVariable Integer propertyId)
+    @DeleteMapping(value="delete/{id}")
+    public Property delete(@PathVariable Integer id)
     {
-        return  propertyService.deleteProperty(propertyId);
+        System.out.println("hit delete");
+        return  propertyService.deleteProperty(id);
     }
 
 
