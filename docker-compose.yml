@@ -9,13 +9,12 @@ services:
     depends_on:
       - db
     environment:
+      - SPRING_BOOT_ENVIRONMENT=dev
       - spring.datasource.url=jdbc:postgresql://db:5432/hashhomes
       - JWT_SECRET=${JWT_SECRET}
       - ISSUER=${ISSUER}
-      - GOOGLE_CLOUD_PROJECT=hu18-groupa-angular
       - spring.datasource.username=postgres
       - spring.datasource.password=123
-      - spring.cloud.gcp.logging.enabled=false
   db:
     image: postgres
     ports:

@@ -30,6 +30,7 @@ deploy_backend:
        DB_USERNAME: "vrpd"
        DB_PASSWORD: "postgress"
        DB_CLOUD_SQL: "34.93.210.170"
+       SPRING_BOOT_ENVIRONMENT: "prod"
       runtime_config:
         jdk: openjdk11
       service: vrpd-backend
