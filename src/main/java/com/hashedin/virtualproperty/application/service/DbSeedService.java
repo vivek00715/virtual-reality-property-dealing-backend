@@ -51,7 +51,7 @@ public class DbSeedService {
       String[] cities = this.getCities(state);
       System.out.println("State " + (i + 1) + " out of " + states.length);
       for (String city : cities) {
-        ArrayList<Property> properties = new ArrayList<Property>();
+        List<Property> properties = new ArrayList<Property>();
         String[] types = new String[] {"Home", "Office", "Apartment"};
         int propertyCount = faker.number().numberBetween(5, 15);
         // add random properties between 5 to 15 for each city
@@ -81,10 +81,9 @@ public class DbSeedService {
           p.setOwnerEmail(email);
           properties.add(p);
         }
-        List<Property> savedProperties = this.propertyRepo.saveAll(properties);
+        Iterable<Property> savedProperties = this.propertyRepo.saveAll(properties);
         ArrayList<PropertyImage> imagesToBeSaved = new ArrayList<>();
-        for (int j = 0; j < savedProperties.size(); j++) {
-          Property property = savedProperties.get(j);
+        for (Property property : savedProperties) {
           int imagesInProperty = faker.number().numberBetween(3, images.length - 1);
           TreeMap<Integer, Boolean> addedImages = new TreeMap<Integer, Boolean>();
           for (int k = 0; k < imagesInProperty; k++) {
