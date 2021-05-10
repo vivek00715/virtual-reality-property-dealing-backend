@@ -2,6 +2,7 @@ package com.hashedin.virtualproperty.application.controller;
 
 import com.hashedin.virtualproperty.application.entities.Property;
 import com.hashedin.virtualproperty.application.request.PropertyRequest;
+import com.hashedin.virtualproperty.application.response.PropertyFull;
 import com.hashedin.virtualproperty.application.response.PropertyResponse;
 import com.hashedin.virtualproperty.application.service.PropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class PropertyController {
   @Autowired private PropertyService propertyService;
 
   @PostMapping("")
-  public PropertyResponse post(
+  public PropertyFull post(
       @RequestBody PropertyRequest property,
       @RequestHeader(name = "Authorization", defaultValue = "") String token) {
     // we are using PropertyRequest instead of Property in RequestBody
@@ -26,29 +27,30 @@ public class PropertyController {
   }
 
   @GetMapping("")
-  public List<PropertyResponse> get(
+  public PropertyResponse get(
       @RequestParam(required = false, defaultValue = "0") int minPrice,
       @RequestParam(required = false, defaultValue = "2147483647") int maxPrice,
       @RequestParam(required = false, defaultValue = "") String street,
       @RequestParam(required = false, defaultValue = "") String city,
       @RequestParam(required = false, defaultValue = "") String state,
       @RequestParam(required = false, defaultValue = "") String type,
-      @RequestParam(required = false, defaultValue = "") String purpose) {
-    return propertyService.getProperty(minPrice, maxPrice, street, city, state, type, purpose);
+      @RequestParam(required = false, defaultValue = "") String purpose,
+      @RequestParam(defaultValue = "1") int page) {
+    return propertyService.getProperty(minPrice, maxPrice, street, city, state, type, purpose, page);
   }
 
   @GetMapping("/{propertyId}")
-  public PropertyResponse getById(@PathVariable Integer propertyId) {
+  public PropertyFull getById(@PathVariable Integer propertyId) {
     return propertyService.getPropertyById(propertyId);
   }
 
   @GetMapping("/owner/{ownerEmail}")
-  public List<PropertyResponse> getOwnerProperty(@PathVariable String ownerEmail) {
-    return propertyService.getOwnerProperty(ownerEmail);
+  public PropertyResponse getOwnerProperty(@PathVariable String ownerEmail, @RequestParam(defaultValue = "1") int page) {
+    return propertyService.getOwnerProperty(ownerEmail, page);
   }
 
   @PatchMapping("/{id}")
-  public PropertyResponse patch(
+  public PropertyFull patch(
       @RequestBody PropertyRequest property,
       @PathVariable Integer id,
       @RequestHeader(name = "Authorization", defaultValue = "") String token) {
@@ -63,7 +65,7 @@ public class PropertyController {
   }
 
   @PostMapping("/{propertyId}/image")
-  public PropertyResponse addImage(
+  public PropertyFull addImage(
       @PathVariable Integer propertyId,
       @RequestParam("image") MultipartFile image,
       @RequestHeader(required = false, defaultValue = "", name = "Authorization") String token)
@@ -72,7 +74,7 @@ public class PropertyController {
   }
 
   @DeleteMapping("/image/{imageId}")
-  public PropertyResponse deleteImage(
+  public PropertyFull deleteImage(
       @PathVariable String imageId,
       @RequestHeader(defaultValue = "", name = "Authorization") String token)
       throws Exception {
