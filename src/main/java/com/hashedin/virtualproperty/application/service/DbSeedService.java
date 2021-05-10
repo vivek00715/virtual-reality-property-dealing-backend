@@ -2,27 +2,30 @@ package com.hashedin.virtualproperty.application.service;
 
 import com.github.javafaker.Faker;
 import com.hashedin.virtualproperty.application.entities.Property;
+import com.hashedin.virtualproperty.application.entities.PropertyImage;
 import com.hashedin.virtualproperty.application.entities.User;
+import com.hashedin.virtualproperty.application.repository.PropertyImageRepository;
 import com.hashedin.virtualproperty.application.repository.PropertyRepo;
 import com.hashedin.virtualproperty.application.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
+import java.util.*;
 
 @Service
 public class DbSeedService {
 
   @Autowired UserRepository userRepository;
   @Autowired PropertyRepo propertyRepo;
+  @Autowired PropertyImageRepository propertyImageRepository;
 
   public void seedDatabase() {
     Faker faker = new Faker(new Locale("en-IND"));
     // create 100 fake users
     ArrayList<User> users = new ArrayList<User>();
     userRepository.deleteAll();
+    int idCounter = 0;
+    String[] images = this.getImageUrl();
     for (int i = 0; i < 100; i++) {
       try {
         String email = faker.internet().emailAddress();
@@ -56,6 +59,9 @@ public class DbSeedService {
           String type = types[faker.number().numberBetween(0, 2)];
           String purpose = faker.number().randomDigit() % 2 == 0 ? "Sell" : "Rent";
           String email = users.get(faker.number().numberBetween(0, users.size() - 1)).getEmail();
+          int bedrooms = faker.number().numberBetween(1, 6);
+          int bathrooms = faker.number().numberBetween(1, bedrooms);
+          int bhk = faker.number().numberBetween(bedrooms, bedrooms + 2);
           Property p =
               new Property(
                   city,
@@ -65,17 +71,33 @@ public class DbSeedService {
                   purpose,
                   faker.lorem().sentence(),
                   faker.number().numberBetween(500, 4000),
-                  faker.number().randomDigitNotZero(),
+                  bhk,
                   faker.number().numberBetween(1990, 2021),
                   faker.number().numberBetween(500000, 50000000),
-                  faker.number().randomDigitNotZero(),
-                  faker.number().randomDigitNotZero(),
-                  faker.number().randomDigitNotZero(),
+                  faker.number().numberBetween(1, 4),
+                  bedrooms,
+                  bathrooms,
                   Integer.parseInt(faker.address().zipCode()));
           p.setOwnerEmail(email);
           properties.add(p);
         }
-        this.propertyRepo.saveAll(properties);
+        List<Property> savedProperties = this.propertyRepo.saveAll(properties);
+        ArrayList<PropertyImage> imagesToBeSaved = new ArrayList<>();
+        for (int j = 0; j < savedProperties.size(); j++) {
+          Property property = savedProperties.get(j);
+          int imagesInProperty = faker.number().numberBetween(3, images.length - 1);
+          TreeMap<Integer, Boolean> addedImages = new TreeMap<Integer, Boolean>();
+          for (int k = 0; k < imagesInProperty; k++) {
+            Integer imageIndex = faker.number().numberBetween(0, images.length - 1);
+            if (addedImages.containsKey(imageIndex)) {
+              k--;
+            } else {
+              addedImages.put(imageIndex, true);
+              imagesToBeSaved.add(new PropertyImage("IMAGE" + idCounter++, images[imageIndex], property));
+            }
+          }
+        }
+        this.propertyImageRepository.saveAll(imagesToBeSaved);
       }
     }
   }
@@ -91,6 +113,21 @@ public class DbSeedService {
 
   private String[] getCities(String state) {
     return this.getStateCityHashMap().get(state);
+  }
+
+  private String[] getImageUrl() {
+    return new String[] {
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+      "https://images.unsplash.com/photo-1602941525436-839a5be074ff?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+      "https://images.unsplash.com/photo-1600585152915-d208bec867a1?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1935&q=80",
+      "https://images.unsplash.com/photo-1600585153490-76fb20a32601?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+      "https://images.unsplash.com/photo-1600585154363-67eb9e2e2099?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+      "https://images.unsplash.com/photo-1472224371017-08207f84aaae?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1797&q=80",
+      "https://images.unsplash.com/photo-1613553483056-c8cb4c5d2a7b?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+      "https://images.unsplash.com/photo-1600566753051-f0b89df2dd90?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+      "https://images.unsplash.com/photo-1600607687644-c7171b42498f?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80"
+    };
   }
 
   private HashMap<String, String[]> getStateCityHashMap() {
