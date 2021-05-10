@@ -1,7 +1,10 @@
 package com.hashedin.virtualproperty.application.response;
 
-import javax.persistence.Column;
+import lombok.Data;
 
+import java.util.List;
+
+@Data
 public class PropertyResponse
 {
     private Integer propertyId;
@@ -36,7 +39,9 @@ public class PropertyResponse
 
     private int pinCode;
 
-    public PropertyResponse(Integer propertyId, String city, String state, String address, String type, String purpose, String ownerEmail, String description, int area, int bhk, int builtYear, int price, int floors, int bedrooms, int bathrooms, int pinCode) {
+    private List<FileResponse> images;
+
+    public PropertyResponse(Integer propertyId, String city, String state, String address, String type, String purpose, String ownerEmail, String description, int area, int bhk, int builtYear, int price, int floors, int bedrooms, int bathrooms, int pinCode, List<FileResponse> propertyImages) {
         this.propertyId = propertyId;
         this.city = city;
         this.state = state;
@@ -53,5 +58,6 @@ public class PropertyResponse
         this.bedrooms = bedrooms;
         this.bathrooms = bathrooms;
         this.pinCode = pinCode;
+        this.images = propertyImages;
     }
 }

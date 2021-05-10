@@ -1,112 +1,82 @@
 package com.hashedin.virtualproperty.application.controller;
 
-
 import com.hashedin.virtualproperty.application.entities.Property;
+import com.hashedin.virtualproperty.application.request.PropertyRequest;
+import com.hashedin.virtualproperty.application.response.PropertyResponse;
 import com.hashedin.virtualproperty.application.service.PropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
-public class PropertyController
-{
-    @Autowired
-    private PropertyService propertyService;
+@RequestMapping("/property")
+public class PropertyController {
+  @Autowired private PropertyService propertyService;
 
-    final String base="/property";
+  @PostMapping("")
+  public PropertyResponse post(
+      @RequestBody PropertyRequest property,
+      @RequestHeader(name = "Authorization", defaultValue = "") String token) {
+    // we are using PropertyRequest instead of Property in RequestBody
+    // to make Swagger not show Id and ownerEmail required in body
+    return propertyService.createProperty(property, token);
+  }
 
-    @PostMapping(value=base)
-    public Property post(@RequestBody Property property,@RequestHeader (name="Authorization") String token)
-    {
-            System.out.println("hit post...");
-//        System.out.println(token);
-            return propertyService.createProperty(property,token);
-    }
+  @GetMapping("")
+  public List<PropertyResponse> get(
+      @RequestParam(required = false, defaultValue = "0") int minPrice,
+      @RequestParam(required = false, defaultValue = "2147483647") int maxPrice,
+      @RequestParam(required = false, defaultValue = "") String street,
+      @RequestParam(required = false, defaultValue = "") String city,
+      @RequestParam(required = false, defaultValue = "") String state,
+      @RequestParam(required = false, defaultValue = "") String type,
+      @RequestParam(required = false, defaultValue = "") String purpose) {
+    return propertyService.getProperty(minPrice, maxPrice, street, city, state, type, purpose);
+  }
 
-    @GetMapping(value=base)
-    public List<Property> get(
-            @RequestParam(required=false,defaultValue = "0")int minPrice,
-            @RequestParam(required=false,defaultValue = "2147483647")int maxPrice,
-            @RequestParam(required = false,defaultValue = "")String street,
-            @RequestParam(required = false,defaultValue = "")String city,
-            @RequestParam(required = false,defaultValue = "")String state,
-            @RequestParam(required = false,defaultValue = "")String type,
-            @RequestParam(required = false,defaultValue = "")String purpose
-    )
-    {
-        System.out.println(minPrice+" "+maxPrice+" "+street+" "+city+" "+state+" "+type+" "+purpose);
-        return propertyService.getProperty(minPrice,maxPrice,street,city,state,
-                                            type,purpose);
-    }
+  @GetMapping("/{propertyId}")
+  public PropertyResponse getById(@PathVariable Integer propertyId) {
+    return propertyService.getPropertyById(propertyId);
+  }
 
-    @GetMapping(value=base+"/{propertyId}")
-    public Property getById(@PathVariable Integer propertyId)
-    {
-        return propertyService.getPropertyById(propertyId);
-    }
+  @GetMapping("/owner/{ownerEmail}")
+  public List<PropertyResponse> getOwnerProperty(@PathVariable String ownerEmail) {
+    return propertyService.getOwnerProperty(ownerEmail);
+  }
 
-    @GetMapping(value="owner/{ownerEmail}"+base)
-    public List<Property> getOwnerProperty(@PathVariable String ownerEmail)
-    {
-        return propertyService.getOwnerProperty(ownerEmail);
-    }
+  @PatchMapping("/{id}")
+  public PropertyResponse patch(
+      @RequestBody PropertyRequest property,
+      @PathVariable Integer id,
+      @RequestHeader(name = "Authorization", defaultValue = "") String token) {
+    return propertyService.editProperty(property, id, token);
+  }
 
-    @PatchMapping(value="patch/{id}")
-    public Property patch(@RequestBody Property property,@PathVariable Integer id)
-    {
-        return propertyService.editProperty(property,id);
-    }
+  @DeleteMapping("/{id}")
+  public Property delete(
+      @PathVariable Integer id,
+      @RequestHeader(name = "Authorization", defaultValue = "") String token) {
+    return propertyService.deleteProperty(id, token);
+  }
 
-    @DeleteMapping(value="delete/{id}")
-    public Property delete(@PathVariable Integer id)
-    {
-        System.out.println("hit delete");
-        return  propertyService.deleteProperty(id);
-    }
+  @PostMapping("/{propertyId}/image")
+  public PropertyResponse addImage(
+      @PathVariable Integer propertyId,
+      @RequestParam("image") MultipartFile image,
+      @RequestHeader(required = false, defaultValue = "", name = "Authorization") String token)
+      throws IOException {
+    return this.propertyService.addImage(propertyId, image, token);
+  }
 
-
-//    @GetMapping(value="property/all")
-//    public List<Property> gettingAllProperty()
-//    {
-//            return propertyService.getProperty();
-//    }
-//    @GetMapping(value="property/city/{city}")
-//    public List<Property> gettingAllPropertiesByCityName(@PathVariable String city)
-//    {
-//            return propertyService.getPropertyByCityName(city);
-//    }
-
-
-
-//    @GetMapping(value="property/city-type/{city}/{type}")
-//    public List<Property> gettingAllPropertiesByCityNameAndType(@PathVariable String city,@PathVariable String type)
-//    {
-//            return propertyService.getPropertyByCityAndType(city,type);
-//    }
-//
-//    @GetMapping(value="property/state-type/{state}/{type}")
-//    public List<Property> gettingAllPropertiesByStateNameAndType(@PathVariable String state,@PathVariable String type)
-//    {
-//            return propertyService.getPropertyByStateAndType(state,type);
-//    }
-//
-//    @GetMapping(value="property/address/{address}/{city}/{state}")
-//    public List<Property> gettingAllPropertiesByCityNameAndType(@PathVariable String address,@PathVariable String city,@PathVariable String state)
-//    {
-//            return propertyService.getPropertyByAddress(address,city,state);
-//    }
-//
-//    @GetMapping(value="property/state/{state}")
-//    public List<Property> gettingAllPropertiesByState(@PathVariable String state)
-//    {
-//            return propertyService.getPropertyByState(state);
-//    }
-//    @GetMapping(value="property/budget/{price}")
-//    public List<Property> gettingPropertyByBudget(@PathVariable("price") int maxPrice)
-//    {
-//            return propertyService.getPropertyByMaxPrice(maxPrice);
-//    }
-
-
+  @DeleteMapping("/image/{imageId}")
+  public PropertyResponse deleteImage(
+      @PathVariable String imageId,
+      @RequestHeader(defaultValue = "", name = "Authorization") String token)
+      throws Exception {
+    System.out.println("HERE");
+    return this.propertyService.deleteImage(imageId, token);
+  }
 }

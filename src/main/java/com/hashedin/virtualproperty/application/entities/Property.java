@@ -60,7 +60,6 @@ public class Property
 
     public Property()
     {
-
     }
 
     public Property(String city, String state, String address, String type, String purpose, String description, int area, int bhk, int builtYear, int price, int floors, int bedrooms, int bathrooms, int pinCode) {
