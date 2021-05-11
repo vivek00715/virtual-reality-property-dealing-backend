@@ -16,6 +16,9 @@ public class PropertyImage {
     @Column(nullable = false)
     private String url;
 
+    @Column(nullable = false)
+    private String name;
+
     @ManyToOne
     @JoinColumn(name="propertyId")
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -23,9 +26,10 @@ public class PropertyImage {
 
     public PropertyImage(){}
 
-    public PropertyImage(String publicId, String url, Property property){
+    public PropertyImage(String publicId, String url, String name, Property property){
         this.publicId = publicId;
         this.url = url;
+        this.name = name;
         this.property = property;
     }
 }

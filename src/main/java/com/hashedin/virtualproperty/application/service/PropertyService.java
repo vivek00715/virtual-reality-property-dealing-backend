@@ -7,15 +7,14 @@ import com.hashedin.virtualproperty.application.exceptions.UnauthorizedException
 import com.hashedin.virtualproperty.application.repository.PropertyImageRepository;
 import com.hashedin.virtualproperty.application.repository.PropertyRepo;
 import com.hashedin.virtualproperty.application.request.PropertyRequest;
-import com.hashedin.virtualproperty.application.response.FileResponse;
-import com.hashedin.virtualproperty.application.response.PropertyFull;
-import com.hashedin.virtualproperty.application.response.PropertyResponse;
-import com.hashedin.virtualproperty.application.response.PropertyShort;
+import com.hashedin.virtualproperty.application.response.*;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -143,8 +142,8 @@ public class PropertyService {
     if (!property.getOwnerEmail().equalsIgnoreCase(userEmail)) {
       throw new UnauthorizedException("Unauthorized to perform this action");
     }
-    FileResponse response = this.fileStorageService.storeFile(image, token);
-    PropertyImage propertyImage = new PropertyImage(response.id, response.url, property);
+    FileResponse response = this.fileStorageService.storeFile(image);
+    PropertyImage propertyImage = new PropertyImage(response.id, response.url, response.name, property);
     this.propertyImageRepository.save(propertyImage);
     return this.convertPropertyToPropertyFull(property);
   }
@@ -160,7 +159,8 @@ public class PropertyService {
     if (!property.getOwnerEmail().equalsIgnoreCase(userEmail)) {
       throw new CustomException("Unauthorized to delete other user's images");
     }
-    this.fileStorageService.deleteFile(imageId);
+    FileResponse file = new FileResponse(image.getUrl(), image.getPublicId(), image.getName());
+    this.fileStorageService.deleteFile(file);
     this.propertyImageRepository.delete(image);
     return this.convertPropertyToPropertyFull(property);
   }
@@ -192,9 +192,9 @@ public class PropertyService {
     List<Map> imagesFromDb =
         this.propertyImageRepository.findAllByPropertyId(property.getPropertyId());
 
-    ArrayList<FileResponse> images = new ArrayList<>();
+    ArrayList<Image> images = new ArrayList<>();
     for (Map map : imagesFromDb) {
-      images.add(new FileResponse(map.get("url"), map.get("publicId")));
+      images.add(new Image(map.get("publicId").toString(), map.get("url").toString()));
     }
     return new PropertyFull(
         property.getPropertyId(),

@@ -78,7 +78,6 @@ public class PropertyController {
       @PathVariable String imageId,
       @RequestHeader(defaultValue = "", name = "Authorization") String token)
       throws Exception {
-    System.out.println("HERE");
     return this.propertyService.deleteImage(imageId, token);
   }
 }

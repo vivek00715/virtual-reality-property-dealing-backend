@@ -38,7 +38,7 @@ public class PropertyFull {
 
   public int pinCode;
 
-  public List<FileResponse> images;
+  public List<Image> images;
 
   public PropertyFull(
       Integer propertyId,
@@ -57,7 +57,7 @@ public class PropertyFull {
       int bedrooms,
       int bathrooms,
       int pinCode,
-      List<FileResponse> propertyImages) {
+      List<Image> propertyImages) {
     this.propertyId = propertyId;
     this.city = city;
     this.state = state;

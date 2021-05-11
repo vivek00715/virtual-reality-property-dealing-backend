@@ -92,7 +92,7 @@ public class DbSeedService {
               k--;
             } else {
               addedImages.put(imageIndex, true);
-              imagesToBeSaved.add(new PropertyImage("IMAGE" + idCounter++, images[imageIndex], property));
+              imagesToBeSaved.add(new PropertyImage("IMAGE" + idCounter++, images[imageIndex], "Naam", property));
             }
           }
         }
