@@ -135,7 +135,6 @@ public class AuthService {
     public String getUserEmailFromToken(String token){
         // use this method to get the email of user from token
         // it will automatically send error response in case of failure
-        System.out.println(token);
         if(token == null){
             throw new UnauthorizedException("Invalid Token");
         }

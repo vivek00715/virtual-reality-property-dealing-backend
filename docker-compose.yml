@@ -15,6 +15,7 @@ services:
       - ISSUER=${ISSUER}
       - spring.datasource.username=postgres
       - spring.datasource.password=123
+      - GOOGLE_APPLICATION_CREDENTIALS=conf/gcloud.json
   db:
     image: postgres
     ports:

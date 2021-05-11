@@ -2,15 +2,14 @@ package com.hashedin.virtualproperty.application.response;
 
 public class FileResponse {
 
-    public FileResponse(String url, String id) {
+    public FileResponse(String url, String id, String name) {
         this.url = url;
         this.id = id;
+        this.name = name;
     }
-    public FileResponse(Object url, Object id) {
-        this.url = url.toString();
-        this.id = id.toString();
-    }
+
 
     public String url;
     public String id;
+    public String name;
 }
