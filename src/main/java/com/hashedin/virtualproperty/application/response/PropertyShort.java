@@ -8,6 +8,7 @@ public class PropertyShort {
     public String city;
     public String state;
     public String address;
+    public String purpose;
     public int area;
     public int bhk;
     public int price;
@@ -16,8 +17,10 @@ public class PropertyShort {
     public int bathrooms;
     public int pinCode;
     public String image;
+    public int built_year;
+    public String type;
 
-    public PropertyShort(Integer propertyId, String city, String state, String address, int area, int bhk, int price, int floors, int bedrooms, int bathrooms, int pinCode, String image) {
+    public PropertyShort(Integer propertyId, String city, String state, String address, int area, int bhk, int price, int floors, int bedrooms, int bathrooms, int pinCode, String image,String purpose,int built_year,String type) {
         this.propertyId = propertyId;
         this.city = city;
         this.state = state;
@@ -30,5 +33,8 @@ public class PropertyShort {
         this.bathrooms = bathrooms;
         this.pinCode = pinCode;
         this.image = image;
+        this.purpose=purpose;
+        this.built_year=built_year;
+        this.type=type;
     }
 }
