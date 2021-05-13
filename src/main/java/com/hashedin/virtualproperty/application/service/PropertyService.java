@@ -185,7 +185,7 @@ public class PropertyService {
         property.getBedrooms(),
         property.getBathrooms(),
         property.getPinCode(),
-        thumbImage);
+        thumbImage, property.getPurpose(), property.getBuiltYear(),property.getType());
   }
 
   private PropertyFull convertPropertyToPropertyFull(Property property) {
