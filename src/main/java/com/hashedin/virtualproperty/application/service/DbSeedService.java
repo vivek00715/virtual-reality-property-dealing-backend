@@ -4,11 +4,13 @@ import com.github.javafaker.Faker;
 import com.hashedin.virtualproperty.application.entities.Property;
 import com.hashedin.virtualproperty.application.entities.PropertyImage;
 import com.hashedin.virtualproperty.application.entities.User;
+import com.hashedin.virtualproperty.application.exceptions.CustomException;
 import com.hashedin.virtualproperty.application.repository.PropertyImageRepository;
 import com.hashedin.virtualproperty.application.repository.PropertyRepo;
 import com.hashedin.virtualproperty.application.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.*;
 
@@ -20,6 +22,11 @@ public class DbSeedService {
   @Autowired PropertyImageRepository propertyImageRepository;
 
   public void seedDatabase() {
+    // disable seeding on production
+    String currentUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+    if(!currentUrl.startsWith("http://localhost")){
+      throw new CustomException("Please don't run seed on production server");
+    }
     Faker faker = new Faker(new Locale("en-IND"));
     // create 100 fake users
     ArrayList<User> users = new ArrayList<User>();
