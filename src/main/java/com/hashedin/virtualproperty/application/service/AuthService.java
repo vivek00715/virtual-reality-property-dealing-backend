@@ -12,13 +12,19 @@ import com.hashedin.virtualproperty.application.exceptions.InvalidRequest;
 import com.hashedin.virtualproperty.application.exceptions.UnauthorizedException;
 import com.hashedin.virtualproperty.application.repository.UserRepository;
 import com.hashedin.virtualproperty.application.response.AuthResponse;
+import freemarker.template.TemplateException;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,10 +33,13 @@ import java.util.regex.Pattern;
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MailService mailService;
     private final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    public AuthResponse loginUser(String email, String password) {
-        this.logger.info(email + " login request");
+    public AuthResponse loginUser(String email, String password) throws MessagingException, TemplateException, IOException {
+        this.logger.info(email + " LOGIN REQUEST");
         this.validateData(email, password);
 
         // find if user is present in database to authenticate
@@ -44,7 +53,15 @@ public class AuthService {
         String hashedPassword = user.getPassword();
         if (!BCrypt.verifyer().verify(password.toCharArray(), hashedPassword).verified) {
             // invalid credentials for user
+            this.logger.warn("FAILED LOGIN ATTEMPT FOR EMAIL " + email);
             throw new CustomException("Invalid login credentials provided");
+        }
+        // is user is not verified, resend verification email
+        this.logger.info("IS USER VERIFIED: " + user.isVerified());
+        if (!user.isVerified()) {
+            String emailToken = this.getEmailVerificationToken(user.getEmail());
+            String tokenUrl = this.getFrontendUrl() + "/verify/" + emailToken;
+            this.mailService.sendVerificationEmail(email, tokenUrl);
         }
         // user has entered correct details, generate token and send response
         String token = this.generateJWTToken(user.getEmail());
@@ -52,8 +69,8 @@ public class AuthService {
 
     }
 
-    public AuthResponse signupUser(String email, String password, String name, String mobile, String address) {
-        this.logger.info(email + " signup request");
+    public AuthResponse signupUser(String email, String password, String name, String mobile, String address) throws MessagingException, TemplateException, IOException {
+        this.logger.info(email + " SIGNUP REQUEST");
         this.validateSignupData(email, password, name, mobile, address);
         // details are valid till now
 
@@ -65,12 +82,43 @@ public class AuthService {
         String hashedPassword = BCrypt.withDefaults().hashToString(10, password.toCharArray());
         User savedUser = this.userRepository.save(new User(email, hashedPassword, name, mobile, address));
         String token = generateJWTToken(email);
-
+        String emailToken = this.getEmailVerificationToken(email);
+        String tokenUrl = this.getFrontendUrl() + "/verify/" + emailToken;
+        this.mailService.sendVerificationEmail(email, tokenUrl);
         // return the response
         return new AuthResponse(savedUser.getEmail(), savedUser.getName(), savedUser.getAddress(), savedUser.getMobile(), token);
 
     }
 
+    public String verifyEmailToken(String token) {
+        User user = this.getUserFromEmailToken(token);
+        this.logger.info("VERIFYING EMAIL FOR " + user.getEmail());
+        user.setVerified(true);
+        this.userRepository.save(user);
+        return "Validated";
+    }
+
+    public void sendPasswordResetEmail(String email) throws MessagingException, TemplateException, IOException {
+        this.logger.info("PASSWORD RESET REQUEST FOR EMAIL " + email);
+        Optional<User> userOptional = this.userRepository.findById(email);
+        if(userOptional.isEmpty()){
+            this.logger.info("NO USER WITH EMAIL " + email + " FOR PASSWORD RESET");
+            return;
+        }
+        String emailToken = this.getEmailVerificationToken(email);
+        String tokenUrl = this.getFrontendUrl() + "/reset/" + emailToken;
+        this.mailService.sendPasswordResetEmail(email, tokenUrl);
+    }
+
+    public void resetPassword(String token, String newPassword){
+        if(newPassword == null || newPassword.length() < 6) {
+            throw new CustomException("Password should have length of atleast 6 characters");
+        }
+        User user = this.getUserFromEmailToken(token);
+        String hashedPassword = BCrypt.withDefaults().hashToString(10, newPassword.toCharArray());
+        user.setPassword(hashedPassword);
+        this.userRepository.save(user);
+    }
     // helper methods
 
     private void validateSignupData(String email, String password, String name, String mobile, String address) {
@@ -132,10 +180,10 @@ public class AuthService {
                 .sign(algorithmHS);
     }
 
-    public String getUserEmailFromToken(String token){
+    public User getUserFromToken(String token) {
         // use this method to get the email of user from token
         // it will automatically send error response in case of failure
-        if(token == null){
+        if (token == null) {
             throw new UnauthorizedException("Invalid Token");
         }
         try {
@@ -144,8 +192,18 @@ public class AuthService {
                     .withIssuer(this.getIssuer())
                     .build();
             DecodedJWT jwt = verifier.verify(token);
-            return jwt.getClaim("email").asString();
-        } catch (JWTVerificationException exception){
+            String email = jwt.getClaim("email").asString();
+            Optional<User> userOptional = this.userRepository.findById(email);
+            if(userOptional.isEmpty()){
+                this.logger.warn("USER WITH EMAIL " + email + " NOT FOUND WITH VALID TOKEN. SECRETS MAY BE COMPROMISED");
+                throw new CustomException("Invalid Token");
+            }
+            User user = userOptional.get();
+            if(!user.isVerified()){
+                throw new CustomException("User is not verified. Use login to get new verification email");
+            }
+            return user;
+        } catch (JWTVerificationException exception) {
             //Invalid signature/claims
             throw new UnauthorizedException("Invalid Token");
         }
@@ -154,7 +212,7 @@ public class AuthService {
     private String getJwtSecret() {
         // fallback to random string if jwt_secret is not set
         String jwtSecret = System.getenv("JWT_SECRET");
-        if(jwtSecret == null || jwtSecret.length() == 0){
+        if (jwtSecret == null || jwtSecret.length() == 0) {
             jwtSecret = "askdjasjdlaskjdlasjdlasjdklasjdaslkfdajhsfgajsgdhasd";
         }
         return jwtSecret;
@@ -163,9 +221,69 @@ public class AuthService {
     private String getIssuer() {
         // fallback issuer if Issuer is not set
         String issuer = System.getenv("ISSUER");
-        if(issuer == null || issuer.length() == 0){
+        if (issuer == null || issuer.length() == 0) {
             issuer = "VR_PROPERTY";
         }
         return issuer;
+    }
+
+    private String getEmailVerificationJwtSecret() {
+        String emailJwtSecret = System.getenv("EMAIL_JWT_SECRET");
+        if (emailJwtSecret == null || emailJwtSecret.length() == 0) {
+            emailJwtSecret = "qhweiuqydsiuasdibyqiwusayuidyqiywdisiydaiydsiyq";
+        }
+        return emailJwtSecret;
+    }
+
+    private String getEmailVerificationToken(String email) {
+        Algorithm algorithmHS = Algorithm.HMAC256(this.getEmailVerificationJwtSecret());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date(System.currentTimeMillis()));
+        calendar.add(Calendar.HOUR_OF_DAY, 24);
+        // token expires after 24 hours
+        Date expiryTime = calendar.getTime();
+        return JWT.create()
+                .withIssuer(this.getIssuer())
+                .withClaim("email", email)
+                .withClaim("max_date", expiryTime)
+                .sign(algorithmHS);
+    }
+
+    public User getUserFromEmailToken(String token) {
+        // use this method to get the email of user from token
+        // it will automatically send error response in case of failure
+        if (token == null) {
+            throw new UnauthorizedException("Invalid Token");
+        }
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(this.getEmailVerificationJwtSecret());
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer(this.getIssuer())
+                    .build();
+            DecodedJWT jwt = verifier.verify(token);
+            System.out.println(jwt.getClaim("max_date").asDate().getTime());
+            System.out.println(System.currentTimeMillis());
+            if (jwt.getClaim("max_date").asDate().getTime() < System.currentTimeMillis()) {
+                throw new UnauthorizedException("Token has expired. Login again to get new token");
+            }
+            String email = jwt.getClaim("email").asString();
+            Optional<User> userOptional = this.userRepository.findById(email);
+            if(userOptional.isEmpty()){
+                this.logger.warn("USER WITH EMAIL " + email + " NOT FOUND WITH VALID TOKEN. SECRETS MAY BE COMPROMISED");
+                throw new CustomException("Invalid Token");
+            }
+            return userOptional.get();
+        } catch (JWTVerificationException exception) {
+            //Invalid signature/claims
+            throw new UnauthorizedException("Invalid Token");
+        }
+    }
+
+    private String getFrontendUrl() {
+        String currentUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        if (currentUrl.startsWith("http://localhost")) {
+            return "http://localhost:4200";
+        }
+        return "https://vrpd-frontend-dot-hu18-groupa-angular.et.r.appspot.com";
     }
 }

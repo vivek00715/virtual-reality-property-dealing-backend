@@ -32,6 +32,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String mobile;
 
+    @Column()
+    private boolean verified;
+
+    @Column()
+    private boolean administrator;
+
     public User() {
     } // default constructor as required by JPA
 

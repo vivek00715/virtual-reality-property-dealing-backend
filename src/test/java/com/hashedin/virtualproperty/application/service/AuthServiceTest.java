@@ -7,15 +7,20 @@ import com.hashedin.virtualproperty.application.exceptions.InvalidRequest;
 import com.hashedin.virtualproperty.application.exceptions.UnauthorizedException;
 import com.hashedin.virtualproperty.application.repository.UserRepository;
 import com.hashedin.virtualproperty.application.response.AuthResponse;
+import freemarker.template.TemplateException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import javax.mail.MessagingException;
+
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,11 +35,12 @@ class AuthServiceTest {
     }
 
     @Test
-    void checkingCorrectUserLoginWithTokenValidation() {
+    void checkingCorrectUserLoginWithTokenValidation() throws MessagingException, TemplateException, IOException {
         String password = "123456789";
         String hashedPassword = BCrypt.withDefaults().hashToString(10, password.toCharArray());
         User user =
                 new User("xyz@gmail.com", hashedPassword, "xyz", "9666314745", "hashedin university");
+        user.setVerified(true);
         Optional<User> user1 = Optional.ofNullable(user);
         Mockito.when(userRepository.findById("xyz@gmail.com")).thenReturn(user1);
 
@@ -44,7 +50,7 @@ class AuthServiceTest {
         assertEquals("9666314745", authResponse.mobile);
         assertEquals("hashedin university", authResponse.address);
         assertTrue(authResponse.token.length() > 0);
-        assertEquals(authService.getUserEmailFromToken(authResponse.token), authResponse.email);
+        assertEquals(authService.getUserFromToken(authResponse.token).getEmail(), authResponse.email);
     }
 
     @Test
@@ -91,7 +97,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void test_successfulSignupOfUser() {
+    void test_successfulSignupOfUser() throws MessagingException, TemplateException, IOException {
         // returns the object it was passed
         Mockito.when(userRepository.save(any(User.class))).thenAnswer(returnsFirstArg());
         AuthResponse response =
@@ -102,7 +108,7 @@ class AuthServiceTest {
         assertEquals(response.mobile, "9876543210");
         assertEquals(response.name, "Test User");
         // check token
-        String decodedEmail = authService.getUserEmailFromToken(response.token);
+        String decodedEmail = authService.getUserFromToken(response.token).getEmail();
         assertEquals(decodedEmail, response.email);
     }
 
@@ -175,7 +181,7 @@ class AuthServiceTest {
     @Test
     void throwsUnauthorizedExceptionWhenTokenIsNull() {
         UnauthorizedException ex = assertThrows(UnauthorizedException.class, ()-> {
-            authService.getUserEmailFromToken(null);
+            authService.getUserFromToken(null);
         }, "Exception was expected");
         assertEquals(ex.getMessage(), "Invalid Token");
     }
@@ -183,7 +189,7 @@ class AuthServiceTest {
     @Test
     void throwsUnauthorizedExceptionWhenTokenIsInvalid() {
         UnauthorizedException ex = assertThrows(UnauthorizedException.class, ()-> {
-            authService.getUserEmailFromToken("fakeToken");
+            authService.getUserFromToken("fakeToken");
         }, "Exception was expected");
         assertEquals(ex.getMessage(), "Invalid Token");
     }
