@@ -17,7 +17,7 @@ services:
       - spring.datasource.password=123
       - GOOGLE_APPLICATION_CREDENTIALS=conf/gcloud.json
       - EMAIL=hashhomeshu@gmail.com
-      - PASSWORD=${EMAIL_PASSWORD}
+      - PASSWORD=lwpzilihwbkwakez
   db:
     image: postgres
     ports:
