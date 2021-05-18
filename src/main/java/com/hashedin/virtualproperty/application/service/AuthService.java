@@ -65,7 +65,7 @@ public class AuthService {
         }
         // user has entered correct details, generate token and send response
         String token = this.generateJWTToken(user.getEmail());
-        return new AuthResponse(user.getEmail(), user.getName(), user.getAddress(), user.getMobile(), token);
+        return new AuthResponse(user.getEmail(), user.getName(), user.getAddress(), user.getMobile(), token, user.isAdministrator());
 
     }
 
@@ -86,7 +86,7 @@ public class AuthService {
         String tokenUrl = this.getFrontendUrl() + "/verify/" + emailToken;
         this.mailService.sendVerificationEmail(email, tokenUrl);
         // return the response
-        return new AuthResponse(savedUser.getEmail(), savedUser.getName(), savedUser.getAddress(), savedUser.getMobile(), token);
+        return new AuthResponse(savedUser.getEmail(), savedUser.getName(), savedUser.getAddress(), savedUser.getMobile(), token, savedUser.isAdministrator());
 
     }
 

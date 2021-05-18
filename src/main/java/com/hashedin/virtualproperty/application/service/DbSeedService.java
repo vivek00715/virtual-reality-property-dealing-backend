@@ -69,6 +69,8 @@ public class DbSeedService {
           int bedrooms = faker.number().numberBetween(1, 6);
           int bathrooms = faker.number().numberBetween(1, bedrooms);
           int bhk = faker.number().numberBetween(bedrooms, bedrooms + 2);
+          String virtualTourURL=null;
+          boolean virtualTour=false;
           Property p =
               new Property(
                   city,
@@ -84,7 +86,7 @@ public class DbSeedService {
                   faker.number().numberBetween(1, 4),
                   bedrooms,
                   bathrooms,
-                  Integer.parseInt(faker.address().zipCode()));
+                  Integer.parseInt(faker.address().zipCode()), virtualTourURL,virtualTour);
           p.setOwnerEmail(email);
           properties.add(p);
         }

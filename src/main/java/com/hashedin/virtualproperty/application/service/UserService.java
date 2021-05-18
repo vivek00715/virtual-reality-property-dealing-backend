@@ -34,8 +34,8 @@ public class UserService {
     public UserResponse getUserDetail(String email, String token) {
         User u = this.authService.getUserFromToken(token);
         this.logger.info("SENDING INFORMATION OF USER WITH EMAIL " + email);
-        return new UserResponse(u.getName(), u.getAddress(), u.getUserImage(), u.getMobile(), u.getEmail());
 
+        return new UserResponse(u.getName() , u.getAddress() , u.getUserImage() , u.getMobile() , u.getEmail(), u.isAdministrator());
     }
 
     public UserResponse addImage(MultipartFile image, String token) throws IOException {
@@ -49,7 +49,8 @@ public class UserService {
                 savedUser.getAddress(),
                 savedUser.getUserImage(),
                 savedUser.getMobile(),
-                savedUser.getEmail()
+                savedUser.getEmail(),
+                savedUser.isAdministrator()
         );
     }
 
@@ -60,7 +61,8 @@ public class UserService {
         u1.setMobile(user.mobile);
         User u = userRepository.save(u1);
         this.logger.info("UPDATING USER WITH EMAIL " + u1.getEmail());
-        return new UserResponse(u.getName(), u.getAddress(), u.getUserImage(), u.getMobile(), u.getEmail());
+
+        return new UserResponse(u.getName() , u.getAddress() , u.getUserImage() , u.getMobile() , u.getEmail(), u.isAdministrator());
 
     }
 }

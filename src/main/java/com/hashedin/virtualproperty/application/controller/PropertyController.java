@@ -4,6 +4,7 @@ import com.hashedin.virtualproperty.application.entities.Property;
 import com.hashedin.virtualproperty.application.request.PropertyRequest;
 import com.hashedin.virtualproperty.application.response.PropertyFull;
 import com.hashedin.virtualproperty.application.response.PropertyResponse;
+import com.hashedin.virtualproperty.application.response.PropertyShort;
 import com.hashedin.virtualproperty.application.service.PropertyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -80,4 +81,26 @@ public class PropertyController {
       throws Exception {
     return this.propertyService.deleteImage(imageId, token);
   }
+
+  @GetMapping("/virtualTour")
+  public PropertyResponse getProperty( @RequestParam(defaultValue = "1") int page)
+  {
+    System.out.println("hit vr");
+    return this.propertyService.getPropertyHavingVirtualTour(page);
+  }
+
+  @PatchMapping("/virtualTourURL/{id}")
+  public Property setUrl(@PathVariable Integer id,@RequestBody String virtualTourURL,
+                         @RequestHeader(name = "Authorization", defaultValue = "") String token)
+  {
+    System.out.println("hit virtual");
+    return this.propertyService.setVirtualTourUrl(virtualTourURL,id,token);
+  }
+
+  @PatchMapping("/virtualTour/{id}")
+  public Property setUrl(@PathVariable Integer id)
+  {
+    return this.propertyService.setVirtualTour(id);
+  }
+
 }

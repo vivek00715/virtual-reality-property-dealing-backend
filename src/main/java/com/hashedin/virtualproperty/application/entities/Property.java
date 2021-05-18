@@ -58,11 +58,17 @@ public class Property
     @Column(nullable = false)
     private int pinCode;
 
+    @Column(nullable = true)
+    private boolean virtualTour=false;
+
+    @Column(nullable = true)
+    private String virtualTourURL;
+
     public Property()
     {
     }
 
-    public Property(String city, String state, String address, String type, String purpose, String description, int area, int bhk, int builtYear, int price, int floors, int bedrooms, int bathrooms, int pinCode) {
+    public Property(String city, String state, String address, String type, String purpose, String description, int area, int bhk, int builtYear, int price, int floors, int bedrooms, int bathrooms, int pinCode,String virtualTourURL,boolean virtualTour) {
         this.city = city;
         this.state = state;
         this.address = address;
@@ -77,5 +83,7 @@ public class Property
         this.bedrooms = bedrooms;
         this.bathrooms = bathrooms;
         this.pinCode = pinCode;
+        this.virtualTour=virtualTour;
+        this.virtualTourURL=virtualTourURL;
     }
 }

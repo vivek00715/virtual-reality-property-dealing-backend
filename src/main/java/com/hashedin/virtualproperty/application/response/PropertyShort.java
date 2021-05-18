@@ -19,8 +19,11 @@ public class PropertyShort {
     public String image;
     public int built_year;
     public String type;
+    public String ownerEmail;
+    public boolean virtualTour;
+    public String virtualTourUrl;
 
-    public PropertyShort(Integer propertyId, String city, String state, String address, int area, int bhk, int price, int floors, int bedrooms, int bathrooms, int pinCode, String image,String purpose,int built_year,String type) {
+    public PropertyShort(Integer propertyId, String city, String state, String address, int area, int bhk, int price, int floors, int bedrooms, int bathrooms, int pinCode, String image,String purpose,int built_year,String type,String ownerEmail,boolean virtualTour,String virtualTourUrl) {
         this.propertyId = propertyId;
         this.city = city;
         this.state = state;
@@ -36,5 +39,8 @@ public class PropertyShort {
         this.purpose=purpose;
         this.built_year=built_year;
         this.type=type;
+        this.ownerEmail=ownerEmail;
+        this.virtualTour=virtualTour;
+        this.virtualTourUrl=virtualTourUrl;
     }
 }

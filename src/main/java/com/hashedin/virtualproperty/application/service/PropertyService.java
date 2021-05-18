@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PropertyService {
@@ -199,6 +196,7 @@ public class PropertyService {
         if (thumbImageOptional.size() > 0) {
             thumbImage = thumbImageOptional.get(0);
         }
+        System.out.println(property.isVirtualTour());
         return new PropertyShort(
                 property.getPropertyId(),
                 property.getCity(),
@@ -211,7 +209,7 @@ public class PropertyService {
                 property.getBedrooms(),
                 property.getBathrooms(),
                 property.getPinCode(),
-                thumbImage, property.getPurpose(), property.getBuiltYear(), property.getType());
+                thumbImage, property.getPurpose(), property.getBuiltYear(), property.getType(),property.getOwnerEmail(),property.isVirtualTour(),property.getVirtualTourURL());
     }
 
     private PropertyFull convertPropertyToPropertyFull(Property property) {
@@ -239,8 +237,11 @@ public class PropertyService {
                 property.getBedrooms(),
                 property.getBathrooms(),
                 property.getPinCode(),
-                images);
+                images,
+                property.isVirtualTour(),
+                property.getVirtualTourURL());
     }
+
 
     private Property convertPropertyRequestToProperty(PropertyRequest request) {
         return new Property(
@@ -257,6 +258,62 @@ public class PropertyService {
                 request.floors,
                 request.bedrooms,
                 request.bathrooms,
-                request.pinCode);
+                request.pinCode,
+                request.virtualTourURL,
+                request.virtualTour);
     }
+
+    public PropertyResponse getPropertyHavingVirtualTour(int page)
+    {
+        if (page < 1) {
+            throw new CustomException("Page number should be greater than 0");
+        }
+
+        // page starts at 0, displaying 0 to user will confuse them, so we give them option from 1-page
+        // and subtract 1
+        System.out.println(page);
+        Pageable pageNumber = PageRequest.of(page - 1, 10);
+        Page<Property> propertyList =propertyRepo.getPropertyHavingVirtualTour(true,pageNumber);
+        System.out.println(propertyList);
+        this.logger.info("TOTAL RECORDS: " + propertyList.getTotalElements());
+        if (propertyList.isEmpty()) throw new CustomException("No Property Found....");
+        ArrayList<PropertyShort> propertyData = new ArrayList<>();
+        for (Property property : propertyList) {
+            propertyData.add(this.convertPropertyToPropertyShort(property));
+        }
+        return new PropertyResponse(
+                page, propertyList.getTotalPages(), propertyList.getTotalElements(), propertyData);
+    }
+
+    public Property setVirtualTourUrl(String url, Integer id, String token)
+    {
+        User user=this.authService.getUserFromToken(token);
+        if(!user.isAdministrator())
+        {
+            this.logger.warn("USER WITH EMAIL " + user.getEmail() + " PERFORMED UNAUTHORIZED ACTION");
+            throw new UnauthorizedException("Unauthorized to perform this action");
+        }
+
+        Property property=propertyRepo.getPropertiesById(id);
+        if(property==null)
+            throw new CustomException("No Property Found with id " + id);
+
+        System.out.println(property);
+        System.out.println(property.getVirtualTourURL()+" "+property.isVirtualTour());
+        property.setVirtualTour(false);
+        property.setVirtualTourURL(url);
+        propertyRepo.save(property);
+        System.out.println(property.getVirtualTourURL()+" "+property.isVirtualTour());
+        System.out.println(property);
+        return property;
+    }
+
+    public Property setVirtualTour(Integer id)
+    {
+        Property property=propertyRepo.getPropertiesById(id);
+        property.setVirtualTour(true);
+        propertyRepo.save(property);
+        return property;
+    }
+
 }
