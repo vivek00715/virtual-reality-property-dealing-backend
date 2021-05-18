@@ -40,6 +40,10 @@ public class PropertyFull {
 
   public List<Image> images;
 
+  public boolean virtualTour=false;
+
+  public String virtualTourUrl="";
+
   public PropertyFull(
       Integer propertyId,
       String city,
@@ -57,7 +61,9 @@ public class PropertyFull {
       int bedrooms,
       int bathrooms,
       int pinCode,
-      List<Image> propertyImages) {
+      List<Image> propertyImages,
+      boolean virtualTour,
+      String virtualTourUrl) {
     this.propertyId = propertyId;
     this.city = city;
     this.state = state;
@@ -75,5 +81,7 @@ public class PropertyFull {
     this.bathrooms = bathrooms;
     this.pinCode = pinCode;
     this.images = propertyImages;
+    this.virtualTour=virtualTour;
+    this.virtualTourUrl=virtualTourUrl;
   }
 }

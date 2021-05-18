@@ -7,12 +7,14 @@ public class AuthResponse {
     public String token;
     public String address;
     public String mobile;
+    public boolean isAdministrator;
 
-    public AuthResponse(String email, String name, String address, String mobile, String token){
+    public AuthResponse(String email, String name, String address, String mobile, String token,boolean isAdministrator){
         this.email = email;
         this.name = name;
         this.token = token;
         this.address = address;
         this.mobile = mobile;
+        this.isAdministrator=isAdministrator;
     }
 }

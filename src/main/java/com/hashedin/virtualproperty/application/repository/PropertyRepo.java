@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PropertyRepo extends PagingAndSortingRepository<Property, Integer> {
 
@@ -22,4 +24,7 @@ public interface PropertyRepo extends PagingAndSortingRepository<Property, Integ
 
     @Query("select p from Property p where propertyId =?1")
      Property getPropertiesById(Integer id);
+
+    @Query("select p from Property p where p.virtualTour = true")
+    Page<Property> getPropertyHavingVirtualTour(boolean res,Pageable pageable);
 }

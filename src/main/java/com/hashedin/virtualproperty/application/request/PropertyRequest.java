@@ -14,6 +14,8 @@ public class PropertyRequest {
   public String purpose;
   public String ownerEmail;
   public String description;
+  public String virtualTourURL;
+  public boolean virtualTour;
   public int area;
   public int bhk;
   public int builtYear;
