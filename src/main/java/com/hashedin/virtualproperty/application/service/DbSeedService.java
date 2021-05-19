@@ -35,7 +35,7 @@ public class DbSeedService {
     String[] images = this.getImageUrl();
     for (int i = 0; i < 100; i++) {
       try {
-        String email = faker.internet().emailAddress();
+        String email = faker.internet().safeEmailAddress();
         String password = faker.bothify("???###?#?#");
         String address = faker.address().fullAddress();
         String name = faker.name().fullName();
@@ -52,7 +52,9 @@ public class DbSeedService {
 
     // create 10 Properties for each city
     String[] states = this.getStates();
-    propertyRepo.deleteAll();
+    System.out.println("DELETING STUFF");
+//    propertyRepo.deleteAll();
+    System.out.println("CREATING PROPERTIES");
     for (int i = 0; i < states.length; i++) {
       String state = states[i];
       String[] cities = this.getCities(state);

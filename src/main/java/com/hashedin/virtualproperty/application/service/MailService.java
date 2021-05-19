@@ -1,5 +1,6 @@
 package com.hashedin.virtualproperty.application.service;
 
+import com.hashedin.virtualproperty.application.entities.User;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -39,6 +40,50 @@ public class MailService {
         this.logger.info("PASSWORD RESET EMAIL SEND TO " + to);
     }
 
+    public void sendUserViewedDetailEmail(String to, User user) throws MessagingException, TemplateException, IOException {
+        this.logger.info("SENDING USER VIEWED PROFILE EMAIL TO " + to);
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name());
+        Template t = freemarkerConfig.getTemplate("detail_view.ftl");
+        Map model = new HashMap();
+        model.put("name", user.getName());
+        model.put("email", user.getEmail());
+        model.put("address", user.getAddress());
+        model.put("mobile", user.getMobile());
+        String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
+        helper.setTo(to);
+        helper.setText(html, true);
+        helper.setSubject("Someone viewed your profile at HashHomes!");
+        helper.setFrom("hashhomeshu@gmail.com");
+
+        emailSender.send(message);
+        this.logger.info("EMAIL SENT");
+    }
+
+    public void sendOwnerDetailEmail(String to, User owner) throws MessagingException, TemplateException, IOException {
+        this.logger.info("SENDING OWNER DETAIL EMAIL TO " + to);
+        MimeMessage message = emailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name());
+        Template t = freemarkerConfig.getTemplate("owner_info.ftl");
+        Map model = new HashMap();
+        model.put("name", owner.getName());
+        model.put("email", owner.getEmail());
+        model.put("address", owner.getAddress());
+        model.put("mobile", owner.getMobile());
+        String html = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
+        helper.setTo(to);
+        helper.setText(html, true);
+        helper.setSubject("Someone viewed your profile at HashHomes!");
+        helper.setFrom("hashhomeshu@gmail.com");
+
+        emailSender.send(message);
+        this.logger.info("EMAIL SENT");
+    }
+
     private void sendEmail(String to, String link, String subject, String templateName) throws MessagingException, IOException, TemplateException {
         MimeMessage message = emailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message,
@@ -56,4 +101,5 @@ public class MailService {
 
         emailSender.send(message);
     }
+
 }

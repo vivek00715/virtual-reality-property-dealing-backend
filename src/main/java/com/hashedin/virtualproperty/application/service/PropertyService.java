@@ -259,7 +259,7 @@ public class PropertyService {
                 request.bedrooms,
                 request.bathrooms,
                 request.pinCode,
-                request.virtualTourURL,
+                "",
                 request.virtualTour);
     }
 
