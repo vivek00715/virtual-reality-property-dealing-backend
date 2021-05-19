@@ -23,8 +23,8 @@ deploy_backend:
     - "ServiceName=${GITLAB_USER_LOGIN/./-}"
     - |
       cat <<EOF >> app.yaml
-      runtime: custom
-      env: flex
+      runtime: java11
+      env: standard
       env_variables:
        DB_NAME: "virtual-reality"
        DB_USERNAME: "vrpd"
@@ -33,7 +33,7 @@ deploy_backend:
        SPRING_BOOT_ENVIRONMENT: "prod"
       runtime_config:
         jdk: openjdk11
-      service: vrpd-backend
+      service: vrpd-backend1
       handlers:
       - url: /.*
         script: this field is required, but ignored
